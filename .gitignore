@@ -1,0 +1,14 @@
+# Node Modules
+node_modules/
+
+# Secrets & Keys (SABSE ZAROORI)
+.env
+*.pem
+
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Frontend build
+dist/
