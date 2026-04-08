@@ -19,26 +19,38 @@ app.get('/', (req, res) => {
 });
 
 // Main Route: Fetch News from external API
-// Frontend se request aayegi jaise: http://localhost:5000/api/news?source=al-jazeera-english
+// Main Route: Fetch News using GNews API
 app.get('/api/news', async (req, res) => {
     try {
-        const source = req.query.source || 'cnn'; // Default source CNN rakhte hain
-        const apiKey = process.env.NEWS_API_KEY;
+        const source = req.query.source || 'cnn';
         
-        // NewsAPI endpoint URL
-        const url = `https://newsapi.org/v2/top-headlines?sources=${source}&apiKey=${apiKey}`;
+        // 'al-jazeera-english' ko 'al jazeera english' mein badalna taaki search sahi ho
+        const searchQuery = source.split('-').join(' '); 
         
-        // Axios se API call
+        // Variable ka naam wahi rakha hai taaki server par zyada changes na karne padein
+        const apiKey = process.env.NEWS_API_KEY; 
+        
+        // GNews API URL
+        const url = `https://gnews.io/api/v4/search?q="${searchQuery}"&lang=en&max=10&apikey=${apiKey}`;
+        
         const response = await axios.get(url);
         
-        // Frontend ko sirf articles ka data bhejte hain
+        // GNews response mein urlToImage ki jagah image hota hai, isliye map kar rahe hain
+        const formattedArticles = response.data.articles.map(article => ({
+            title: article.title,
+            description: article.description,
+            url: article.url,
+            urlToImage: article.image, // React frontend urlToImage dhundhta hai
+            publishedAt: article.publishedAt
+        }));
+
         res.json({
             success: true,
-            articles: response.data.articles
+            articles: formattedArticles
         });
 
     } catch (error) {
-        console.error('API Fetching Error:', error.message);
+        console.error('API Fetching Error:', error.response ? error.response.data : error.message);
         res.status(500).json({ 
             success: false, 
             message: 'News fetch karne mein error aayi, please try again later.' 
