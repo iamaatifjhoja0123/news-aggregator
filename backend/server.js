@@ -7,9 +7,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-// Development mein sabhi origins allow karte hain. 
-// Baad mein jab aap isko AWS par host karke apni domain (jaise tajfood.nirotechs.com) 
-// se connect karenge, tab origin ko strict kar sakte hain security ke liye.
 app.use(cors()); 
 app.use(express.json());
 
@@ -18,7 +15,6 @@ app.get('/', (req, res) => {
     res.send('News Aggregator Backend is Running!');
 });
 
-// Main Route: Fetch News from external API
 // Main Route: Fetch News using GNews API
 app.get('/api/news', async (req, res) => {
     try {
@@ -27,7 +23,7 @@ app.get('/api/news', async (req, res) => {
         // 'al-jazeera-english' ko 'al jazeera english' mein badalna taaki search sahi ho
         const searchQuery = source.split('-').join(' '); 
         
-        // Variable ka naam wahi rakha hai taaki server par zyada changes na karne padein
+        // AWS server par jo .env banayenge, wahan se yeh key aayegi
         const apiKey = process.env.NEWS_API_KEY; 
         
         // GNews API URL
