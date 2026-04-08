@@ -7,10 +7,10 @@ const Navbar = ({ sources, selectedSource, setSelectedSource }) => {
         <div className="flex items-center justify-between h-16 overflow-x-auto no-scrollbar">
           
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center gap-2 mr-8">
-            <Globe className="h-7 w-7 text-indigo-600" />
-            <span className="font-extrabold text-xl tracking-tight text-slate-900">Nexus<span className="text-indigo-600">News</span></span>
-          </div>
+<div className="flex-shrink-0 flex items-center gap-2 mr-8">
+  <Globe className="h-7 w-7 text-indigo-600" />
+  <span className="font-extrabold text-xl tracking-tight text-slate-900">Top10<span className="text-indigo-600">News</span></span>
+</div>
 
           {/* Source Buttons */}
           <div className="flex space-x-3">
