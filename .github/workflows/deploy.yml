@@ -1,0 +1,53 @@
+name: Deploy News Aggregator to AWS
+
+# Yeh pipeline tab chalegi jab 'main' branch par code push hoga
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # GitHub ka apna virtual server jo build karega
+
+    steps:
+    # 1. Aapka code GitHub server par download karega
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # 2. Node.js setup karega taaki React ko build kar sake
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    # 3. Frontend (React) ka production build banayega
+    - name: Build Frontend (React)
+      run: |
+        cd frontend
+        npm install
+        npm run build
+
+    # 4. SCP (Secure Copy) ke zariye frontend aur backend ko AWS par bhejega
+    - name: Deploy Code to AWS EC2 via SCP
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USER }}
+        key: ${{ secrets.AWS_PRIVATE_KEY }}
+        source: "frontend/dist/*,backend/*"
+        target: "/var/www/news-aggregator"
+        strip_components: 0
+
+    # 5. AWS server ke andar SSH karke backend aur Nginx ko restart karega
+    - name: Restart Backend & Nginx on Server
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USER }}
+        key: ${{ secrets.AWS_PRIVATE_KEY }}
+        script: |
+          cd /var/www/news-aggregator/backend
+          npm install
+          pm2 restart server.js || pm2 start server.js --name "news-backend"
+          sudo systemctl restart nginx
