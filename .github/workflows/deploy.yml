@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+# Yeh line Node 20 wali warning ko hamesha ke liye hata degi
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -13,7 +17,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 1. GitHub aws connect 
+    # 1. GitHub ko AWS se connect karna
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
@@ -21,26 +25,26 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-south-1
 
-    # 2. AWS ECR login
+    # 2. AWS ECR mein Login karna
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    # 3. Backend Docker Image
+    # 3. Backend Image banakar ECR par bhejna
     - name: Build and Push Backend
       run: |
         cd backend
         docker build -t 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-backend:latest .
         docker push 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-backend:latest
 
-    # 4. Frontend Docker Image
+    # 4. Frontend Image banakar ECR par bhejna
     - name: Build and Push Frontend
       run: |
         cd frontend
         docker build -t 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-frontend:latest .
         docker push 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-frontend:latest
 
-    # 5. EC2 Server runs containers 
+    # 5. EC2 Server ke andar ghus kar naye containers chalana
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
       with:
@@ -48,13 +52,11 @@ jobs:
         username: ${{ secrets.AWS_USER }}
         key: ${{ secrets.AWS_PRIVATE_KEY }}
         script: |
-          # Server ko ECR se images download karne ki permission dena
           aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 894759051454.dkr.ecr.ap-south-1.amazonaws.com
           
           mkdir -p /home/ec2-user/news-app
           cd /home/ec2-user/news-app
           
-          # Server par dynamic docker-compose.yml banana
           cat << 'EOF' > docker-compose.yml
           version: '3.8'
           services:
@@ -71,7 +73,6 @@ jobs:
                 - backend
           EOF
           
-          # Nayi images pull karke purane containers replace karna
           docker-compose pull
           docker-compose down
           docker-compose up -d
