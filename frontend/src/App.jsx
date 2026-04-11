@@ -20,10 +20,10 @@ function App() {
     const fetchNews = async () => {
       setLoading(true); 
       try {
-        // Yeh aapke Node.js backend ko call kar raha hai
+        // Node.js backend call 
         const response = await axios.get(`/api/news?source=${selectedSource}`);
         
-        // Removed ya bina image wale articles ko filter karna
+       
         const validArticles = response.data.articles.filter(
           article => article.title !== '[Removed]' && article.urlToImage
         );
