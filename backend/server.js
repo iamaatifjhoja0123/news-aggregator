@@ -14,12 +14,12 @@ app.get('/api/news', async (req, res) => {
         const source = req.query.source || 'cnn';
         
         // --- MULTI-KEY ROTATION LOGIC ---
-        // .env se sari keys uthayega aur array banayega
+    
         const allKeys = process.env.NEWS_API_KEY.split(',');
-        // Har baar ek random key select karega
+        // random key select
         const apiKey = allKeys[Math.floor(Math.random() * allKeys.length)];
 
-        // Al Jazeera fix: Agar source id 'al-jazeera-english' hai toh 'Al Jazeera' search karega
+        // Al Jazeera fix
         let searchQuery = source.split('-').join(' ');
         if(source === 'al-jazeera-english') searchQuery = 'Al Jazeera';
 
@@ -39,7 +39,7 @@ app.get('/api/news', async (req, res) => {
         res.json({
             success: true,
             articles: formattedArticles,
-            usedKeySuffix: apiKey.slice(-4) // Debugging ke liye: key ke aakhri 4 char
+            usedKeySuffix: apiKey.slice(-4) 
         });
 
     } catch (error) {

@@ -1,53 +1,77 @@
-name: Deploy News Aggregator to AWS
+name: Deploy to AWS with Docker & ECR
 
-# Yeh pipeline tab chalegi jab 'main' branch par code push hoga
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest # GitHub ka apna virtual server jo build karega
+    runs-on: ubuntu-latest
 
     steps:
-    # 1. Aapka code GitHub server par download karega
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 2. Node.js setup karega taaki React ko build kar sake
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    # 1. GitHub aws connect 
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        node-version: '20'
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
 
-    # 3. Frontend (React) ka production build banayega
-    - name: Build Frontend (React)
+    # 2. AWS ECR login
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    # 3. Backend Docker Image
+    - name: Build and Push Backend
+      run: |
+        cd backend
+        docker build -t 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-backend:latest .
+        docker push 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-backend:latest
+
+    # 4. Frontend Docker Image
+    - name: Build and Push Frontend
       run: |
         cd frontend
-        npm install
-        npm run build
+        docker build -t 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-frontend:latest .
+        docker push 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-frontend:latest
 
-    # 4. SCP (Secure Copy) ke zariye frontend aur backend ko AWS par bhejega
-    - name: Deploy Code to AWS EC2 via SCP
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.AWS_HOST }}
-        username: ${{ secrets.AWS_USER }}
-        key: ${{ secrets.AWS_PRIVATE_KEY }}
-        source: "frontend/dist/*,backend/*"
-        target: "/var/www/news-aggregator"
-        strip_components: 0
-
-    # 5. AWS server ke andar SSH karke backend aur Nginx ko restart karega
-    - name: Restart Backend & Nginx on Server
-      uses: appleboy/ssh-action@v0.1.10
+    # 5. EC2 Server runs containers 
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.AWS_HOST }}
         username: ${{ secrets.AWS_USER }}
         key: ${{ secrets.AWS_PRIVATE_KEY }}
         script: |
-          cd /var/www/news-aggregator/backend
-          npm install
-          pm2 restart server.js || pm2 start server.js --name "news-backend"
-          sudo systemctl restart nginx
+          # Server ko ECR se images download karne ki permission dena
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 894759051454.dkr.ecr.ap-south-1.amazonaws.com
+          
+          mkdir -p /home/ec2-user/news-app
+          cd /home/ec2-user/news-app
+          
+          # Server par dynamic docker-compose.yml banana
+          cat << 'EOF' > docker-compose.yml
+          version: '3.8'
+          services:
+            backend:
+              image: 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-backend:latest
+              ports:
+                - "5000:5000"
+              env_file: .env
+            frontend:
+              image: 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-frontend:latest
+              ports:
+                - "80:80"
+              depends_on:
+                - backend
+          EOF
+          
+          # Nayi images pull karke purane containers replace karna
+          docker-compose pull
+          docker-compose down
+          docker-compose up -d
