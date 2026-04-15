@@ -9,7 +9,7 @@
 
 Top10News is a highly available, containerized, and fully automated full-stack news aggregator. This project showcases a complete software development lifecycle (SDLC)—from application code to enterprise-grade Cloud and DevOps deployment.
 
-🔗 **Live Production URL:** [http://top10news.jhoja.tech](https://top10news.jhoja.tech)
+🔗 **Live Production URL:** [https://top10news.jhoja.tech](https://top10news.jhoja.tech)
 
 ---
 
