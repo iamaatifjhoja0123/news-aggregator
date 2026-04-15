@@ -70,6 +70,9 @@ jobs:
               image: 894759051454.dkr.ecr.ap-south-1.amazonaws.com/news-frontend:latest
               ports:
                 - "80:80"
+                - "443:443"
+              volumes:
+                - /etc/letsencrypt:/etc/letsencrypt:ro  # <-- Certificate mount karna (Read-Only)
               depends_on:
                 - backend
               restart: always
