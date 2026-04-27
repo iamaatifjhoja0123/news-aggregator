@@ -1,5 +1,4 @@
 # 🌍 Top10News - Enterprise News Aggregator (Cloud-Native Architecture)
-![Top10News Architecture Diagram](top10news_diagram.png)
 
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
@@ -11,6 +10,8 @@
 Top10News is a highly available, containerized, and fully automated full-stack news aggregator. This project showcases a complete software development lifecycle (SDLC)—from application code to enterprise-grade Cloud and DevOps deployment.
 
 🔗 **Live Production URL:** [https://top10news.jhoja.tech](https://top10news.jhoja.tech)
+
+![Top10News Architecture Diagram](diagram.png)
 
 ---
 
