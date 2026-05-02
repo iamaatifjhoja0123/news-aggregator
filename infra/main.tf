@@ -63,7 +63,7 @@ resource "aws_security_group" "docker_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-ingress {
+  ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -87,7 +87,7 @@ ingress {
 
 # 5. EC2 Instance (Auto-install Docker & Docker Compose)
 resource "aws_instance" "docker_server" {
-  ami           = "ami-048f4445314bcaa09" 
+  ami           = "ami-02eb0c2388ee999f9" 
   instance_type = "t3.micro"
   key_name      = "jjj1" 
 

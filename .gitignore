@@ -1,7 +1,7 @@
 # Node Modules
 node_modules/
 
-# Secrets & Keys (SABSE ZAROORI)
+# Secrets & Keys 
 .env
 *.pem
 
@@ -12,3 +12,13 @@ node_modules/
 
 # Frontend build
 dist/
+
+# Logs (Security ke liye zaroori)
+logs
+*.log
+npm-debug.log*
+
+# OS & Editor Files 
+.DS_Store
+.vscode/
+.idea/
