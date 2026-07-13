@@ -5,7 +5,6 @@ on:
     branches:
       - main
 
-
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -57,6 +56,17 @@ jobs:
           mkdir -p /home/ec2-user/news-app
           cd /home/ec2-user/news-app
           
+          # 1. Prometheus Configuration File Create Karein
+          cat << 'EOF' > prometheus.yml
+          global:
+            scrape_interval: 5s
+          scrape_configs:
+            - job_name: 'nodejs-backend'
+              static_configs:
+                - targets: ['backend:5000']
+          EOF
+          
+          # 2. Docker Compose File Create Karein
           cat << 'EOF' > docker-compose.yml
           version: '3.8'
           services:
@@ -75,6 +85,20 @@ jobs:
                 - /etc/letsencrypt:/etc/letsencrypt:ro  # <-- Certificate mount karna (Read-Only)
               depends_on:
                 - backend
+              restart: always
+            prometheus:
+              image: prom/prometheus:latest
+              volumes:
+                - ./prometheus.yml:/etc/prometheus/prometheus.yml
+              command:
+                - '--config.file=/etc/prometheus/prometheus.yml'
+              restart: always
+            grafana:
+              image: grafana/grafana:latest
+              ports:
+                - "3000:3000"
+              depends_on:
+                - prometheus
               restart: always
           EOF
           

@@ -1,3 +1,15 @@
+const client = require('prom-client');
+
+// Enable default metrics collection
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics({ register: client.register });
+
+// Metrics Route for Prometheus
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', client.register.contentType);
+    res.end(await client.register.metrics());
+});
+
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
