@@ -46,6 +46,13 @@ This platform was engineered in 5 distinct phases, scaling from a basic local ap
   * **Deploy:** Securely SSHs into the EC2 instance, dynamically generates `docker-compose.yml`, pulls the latest images, and performs a rolling update of containers without downtime.
 * **Self-Healing:** Configured Docker Compose with `restart: always` policies to automatically recover containers upon server reboots or unexpected crashes.
 
+### Phase 6: System Observability & Monitoring (Prometheus & Grafana)
+Metrics Generation: Integrated prom-client into the Node.js backend to expose real-time application health, event loop lag, memory, and CPU metrics via a /metrics endpoint.
+
+Time-Series Database: Deployed Prometheus as a localized Docker container to automatically scrape and securely store server metric data at continuous intervals.
+
+Data Visualization: Integrated Grafana (accessible via Port 3000) to build a production-grade observability dashboard, eliminating guesswork and providing instant visual feedback on system performance and stability.
+
 ---
 
 ## 🛠️ Technology Stack Breakdown
@@ -59,6 +66,7 @@ This platform was engineered in 5 distinct phases, scaling from a basic local ap
 | **Reverse Proxy** | Nginx |
 | **Backend Framework** | Node.js, Express.js |
 | **Frontend Framework** | React.js (Vite), Tailwind CSS |
+| **Observability & Monitoring** |	Prometheus, Grafana  |
 
 ---
 
